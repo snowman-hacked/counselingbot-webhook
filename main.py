@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
-import openai
+from openai import OpenAI
 import os
 
 app = Flask(__name__)
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+
+# OpenAI 클라이언트 객체 생성 (1.x 방식)
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 @app.route('/webhook', methods=['POST'])
 def kakao_webhook():
@@ -16,7 +18,7 @@ def kakao_webhook():
             "template": {
                 "outputs": [{
                     "simpleText": {
-                        "text": "사용자 입력을 가져오는 데 실패했습니다. 오류: " + str(e)
+                        "text": "❗사용자 입력 오류: " + str(e)
                     }
                 }]
             }
@@ -50,21 +52,21 @@ def kakao_webhook():
     ]
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages
         )
         reply = response.choices[0].message.content.strip()
-        # 응답 유효성 검사
+
         if not reply or not isinstance(reply, str):
-            raise ValueError("GPT 응답이 비어있거나 잘못된 형식입니다.")
+            reply = "❗GPT 응답이 비어있습니다. 다시 시도해 주세요."
+
         if len(reply) > 1000:
             reply = reply[:1000] + " ..."
 
     except Exception as e:
-        error_msg = f"❗GPT 응답 중 오류 발생: {str(e)}"
-        print(error_msg)
-        reply = error_msg  # ⚠️ 실제 운영 시엔 사용자에겐 보여주지 마세요
+        print("❗GPT 응답 오류:", e)
+        reply = f"❗GPT 오류 발생: {str(e)}"
 
     return jsonify({
         "version": "2.0",
