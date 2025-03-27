@@ -36,32 +36,34 @@ def kakao_webhook():
         {"role": "user", "content": user_input}
     ]
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages
-        )
-        reply = response.choices[0].message.content.strip().replace("\n", " ")
-        if not reply or not isinstance(reply, str):
-            reply = "GPT 응답이 비어있습니다."
-        elif len(reply) > 1000:
-            reply = reply[:1000] + " ..."
-    except Exception as e:
-        print("OpenAI 오류:", e)
-        reply = "❗상담 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요!"
+    reply = "GPT 없이 테스트하는 중"
 
-    return jsonify({
-        "version": "2.0",
-        "template": {
-            "outputs": [
-                {
-                    "simpleText": {
-                        "text": reply
-                    }
-                }
-            ]
-        }
-    })
+    # try:
+    #     response = openai.ChatCompletion.create(
+    #         model="gpt-3.5-turbo",
+    #         messages=messages
+    #     )
+    #     reply = response.choices[0].message.content.strip().replace("\n", " ")
+    #     if not reply or not isinstance(reply, str):
+    #         reply = "GPT 응답이 비어있습니다."
+    #     elif len(reply) > 1000:
+    #         reply = reply[:1000] + " ..."
+    # except Exception as e:
+    #     print("OpenAI 오류:", e)
+    #     reply = "❗상담 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요!"
+
+    # return jsonify({
+    #     "version": "2.0",
+    #     "template": {
+    #         "outputs": [
+    #             {
+    #                 "simpleText": {
+    #                     "text": reply
+    #                 }
+    #             }
+    #         ]
+    #     }
+    # })
 
 
 
