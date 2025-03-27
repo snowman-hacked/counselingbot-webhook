@@ -69,7 +69,7 @@
 - Render에 로그인 → `New Web Service`
 - GitHub 저장소 연결
 - Build Command: `pip install -r requirements.txt`
-- Start Command: `python app.py`
+- Start Command: `python main.py`
 
 ### 2. 환경 변수 설정
 
