@@ -117,3 +117,110 @@
 - ✅ 따뜻하고 공감하는 GPT 기반 프롬프트 설계
 - ✅ 오픈빌더와 실시간 연결되는 Flask 서버
 - ✅ Render를 통한 무료 배포 가능
+
+---
+
+## 🧯 카카오톡 챗봇 연동 트러블슈팅 정리
+
+---
+
+### ❌ 1. **"fallback 블록으로 넘어감" 현상**
+
+#### 원인
+- 사용자의 발화가 시나리오 내 어떤 블록에도 매칭되지 않아서 fallback 처리됨
+
+#### 해결법
+- **발화 예시 추가**:  
+  `연애상담시작` 블록에 다양한 자연어 예시 추가  
+  예: "짝사랑이에요", "이별했어요", "고백해도 될까요?"
+
+- **fallback 블록 → GPT 블록 연결**  
+  fallback 블록에서 바로 `GPT상담` 블록으로 연결되도록 시나리오 흐름 구성
+
+---
+
+### ❌ 2. **Webhook 연결은 됐는데 응답이 안 나옴**
+
+#### 원인
+- Flask 서버가 JSON 응답 포맷을 잘못 반환하거나  
+- `outputs` 구조가 빠짐
+
+#### 해결법
+- Flask에서 반환할 때 반드시 아래 구조로 반환:
+
+```json
+{
+  "version": "2.0",
+  "template": {
+    "outputs": [
+      {
+        "simpleText": {
+          "text": "GPT 응답 텍스트"
+        }
+      }
+    ]
+  }
+}
+```
+
+- `reply = GPT 응답` 변수 확인 후 `.strip()` 으로 공백 제거 필수
+
+---
+
+### ❌ 3. **GPT 호출 시 오류 발생 (OpenAI API 관련)**
+
+#### 에러 메시지 예시
+
+```
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0
+```
+
+#### 해결법
+- `openai` 최신 버전(1.0 이상)에 맞게 코드 수정
+
+```python
+from openai import OpenAI
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+response = client.chat.completions.create(...)
+```
+
+또는 `pip install openai==0.28` 로 버전 다운 (비추천)
+
+---
+
+### ❌ 4. **Render 배포는 됐는데 응답이 “❗오류가 발생했어요”만 뜸**
+
+#### 원인
+- 실제 GPT 응답 오류 발생 시 fallback 메시지 출력됨  
+- 서버에서 try-except 블록에서 예외 발생 시 `"❗GPT 응답 중 오류 발생"`으로 응답되도록 처리됨
+
+#### 해결법
+- Render의 `Logs` 탭 확인  
+- 오류 메시지 직접 보기 위해 Flask 코드에 `print("❗GPT 응답 오류:", e)` 삽입
+- `reply = f"❗GPT 오류 발생: {str(e)}"`로 사용자에게도 전달
+
+---
+
+### ❌ 5. **카카오톡 채널에서 시나리오가 작동하지 않음**
+
+#### 원인
+- 챗봇을 **비즈니스센터에서 만든 경우** 오픈빌더가 아님
+- 오픈빌더와 연결되지 않아서 웹훅 사용 불가능
+
+#### 해결법
+- [https://i.kakao.com](https://i.kakao.com) → 챗봇 새로 생성
+- **카카오톡 채널 연동 필수**
+- 오픈빌더 안에서 시나리오, 블록, 스킬 설정 진행
+
+---
+
+### ❌ 6. **Webhook 테스트는 되는데 실제 발화에선 실패함**
+
+#### 원인
+- 발화 예시는 입력됐지만, 블록 간 연결이 없음
+- 혹은 블록 안에 **Webhook 스킬이 없거나 잘못된 URL 입력**
+
+#### 해결법
+- `GPT상담` 블록 안에 Webhook 스킬 정확히 설정
+- POST / application/json / 정확한 Render URL 입력
+- 시나리오 흐름에서 해당 블록으로 연결되었는지 확인
