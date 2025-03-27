@@ -224,3 +224,10 @@ response = client.chat.completions.create(...)
 - `GPT상담` 블록 안에 Webhook 스킬 정확히 설정
 - POST / application/json / 정확한 Render URL 입력
 - 시나리오 흐름에서 해당 블록으로 연결되었는지 확인
+
+---
+
+## 참고자료
+- https://blog.naver.com/pk3152/221387914944
+- https://kakaobusiness.gitbook.io/main/tool/chatbot/tutorial/make_chatbot/tutorial_1
+- GPT4o
