@@ -52,18 +52,18 @@ def kakao_webhook():
     #     print("OpenAI 오류:", e)
     #     reply = "❗상담 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요!"
 
-    # return jsonify({
-    #     "version": "2.0",
-    #     "template": {
-    #         "outputs": [
-    #             {
-    #                 "simpleText": {
-    #                     "text": reply
-    #                 }
-    #             }
-    #         ]
-    #     }
-    # })
+    return jsonify({
+        "version": "2.0",
+        "template": {
+            "outputs": [
+                {
+                    "simpleText": {
+                        "text": reply
+                    }
+                }
+            ]
+        }
+    })
 
 
 
