@@ -12,13 +12,13 @@ def kakao_webhook():
     try:
         user_input = request.json['userRequest']['utterance']
     except Exception as e:
-        print("❌ 사용자 입력 파싱 실패:", e)
+        print("사용자 입력 파싱 실패:", e)
         return jsonify({
             "version": "2.0",
             "template": {
                 "outputs": [{
                     "simpleText": {
-                        "text": "❗사용자 입력 오류: " + str(e)
+                        "text": "사용자 입력 오류: " + str(e)
                     }
                 }]
             }
@@ -59,14 +59,14 @@ def kakao_webhook():
         reply = response.choices[0].message.content.strip()
 
         if not reply or not isinstance(reply, str):
-            reply = "❗GPT 응답이 비어있습니다. 다시 시도해 주세요."
+            reply = "GPT 응답이 비어있습니다. 다시 시도해 주세요."
 
         if len(reply) > 1000:
             reply = reply[:1000] + " ..."
 
     except Exception as e:
-        print("❗GPT 응답 오류:", e)
-        reply = f"❗GPT 오류 발생: {str(e)}"
+        print("GPT 응답 오류:", e)
+        reply = f"GPT 오류 발생: {str(e)}"
 
     return jsonify({
         "version": "2.0",
